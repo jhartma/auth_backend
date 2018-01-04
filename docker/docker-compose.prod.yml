@@ -1,0 +1,12 @@
+version: "3"
+services:
+  auth:
+    image: "jhart/auth_backend:${AUTH_VERSION}"
+    build:
+      context: ../
+      dockerfile: ./Dockerfile_Prod
+      args:
+        AUTH_VERSION: ${AUTH_VERSION}
+    environment:
+      - NODE_ENV=production
+    container_name: auth_backend

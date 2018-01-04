@@ -1,0 +1,32 @@
+{
+  "extends": "tslint:recommended",
+  "autoFixOnSave": true,
+  "rules": {
+      "max-line-length": {
+          "options": [200]
+      },
+      "semicolon": false,        
+      "new-parens": true,
+      "no-arg": true,
+      "no-bitwise": true,
+      "no-conditional-assignment": true,
+      "no-consecutive-blank-lines": false,
+      "jsdoc-format": false,
+      "no-console": {
+          "severity": "warning",
+          "options": [
+              "debug",
+              "info",
+              "log",
+              "time",
+              "timeEnd",
+              "trace"
+          ]
+      }
+  },
+  "jsRules": {
+      "max-line-length": {
+          "options": [120]
+      }
+  }
+}

@@ -1,0 +1,36 @@
+FROM jhart/alpine-base:0.0.24
+MAINTAINER Joerg Hartmann "joerghartmann@gmx.org"
+ARG AUTH_VERSION
+RUN echo "Build version $AUTH_VERSION"
+
+# --------------------------
+# DEPLOY APP ---------------
+# --------------------------
+WORKDIR /home/ubuntu
+
+RUN apk add --update \
+    build-base \
+    libtool \
+    autoconf \
+    automake \
+    busybox
+
+# Symlinks to fix issues with error "libc.musl-x86_64.so.1: cannot open shared object file: No such file or directory"
+RUN ln -s /lib/libc.musl-x86_64.so.1 /usr/lib/libc.musl-x86_64.so.1 && \
+    ln -s /lib/libz.so.1 /usr/lib/libz.so.1
+
+# Expose ports
+EXPOSE 4200
+
+# Copy files
+COPY ./dist .
+COPY package.json .
+
+# Install npm dependencies
+RUN rm node_modules nm_cache.tar yarn.lock -rf
+RUN yarn install
+RUN npm install -g node-gyp
+
+ENV AUTH_VERSION=$AUTH_VERSION
+
+ENTRYPOINT [ "yarn", "run", "ops:run:prod" ]

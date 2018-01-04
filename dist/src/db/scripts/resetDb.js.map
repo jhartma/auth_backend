@@ -1,0 +1,1 @@
+{"version":3,"file":"resetDb.js","sourceRoot":"","sources":["../../../../src/db/scripts/resetDb.js"],"names":[],"mappings":";;AAAA,4CAAwC;AAExC,iBAAO,EAAE,CAAC,IAAI,CAAC,GAAG,EAAE;IAClB,UAAU,CAAC,GAAG,EAAE;QACd,OAAO,CAAC,IAAI,CAAC,CAAC,CAAC,CAAA;IACjB,CAAC,EAAE,IAAI,CAAC,CAAA;AACV,CAAC,CAAC,CAAA"}

@@ -1,0 +1,26 @@
+FROM jhart/alpine-base:0.0.24
+MAINTAINER Joerg Hartmann "joerghartmann@gmx.org"
+
+# --------------------------
+# DEPLOY APP ---------------
+# --------------------------
+WORKDIR /home/ubuntu
+VOLUME /home/ubuntu
+
+RUN apk add --update \
+    build-base \
+    libtool \
+    autoconf \
+    automake \
+    busybox
+
+# Symlinks to fix issues with error "libc.musl-x86_64.so.1: cannot open shared object file: No such file or directory"
+RUN ln -s /lib/libc.musl-x86_64.so.1 /usr/lib/libc.musl-x86_64.so.1 && \
+    ln -s /lib/libz.so.1 /usr/lib/libz.so.1
+
+RUN npm install -g node-gyp
+
+COPY ./docker/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD [ "yarn", "run", "ops:run" ]

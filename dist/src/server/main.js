@@ -1,0 +1,67 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const express = require("express");
+const session = require("express-session");
+const passport = require("passport");
+const config_1 = require("./config");
+const middleware_1 = require("../middleware");
+const seed_1 = require("../db/lib/seed");
+const passport_1 = require("../lib/passport/passport");
+require("./logger");
+const rateLimiter_1 = require("./rateLimiter");
+const app = express();
+const MongoDBStore = require("connect-mongodb-session")(session);
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(session({
+    cookie: { secure: false, httpOnly: false },
+    resave: false,
+    saveUninitialized: false,
+    secret: "your secret",
+    store: new MongoDBStore({ uri: config_1.ACCOUNTS_MONGO_STRING, collection: "sessions" }),
+}));
+passport_1.setupPassport(app);
+app.get("/", (req, res) => {
+    res.send("This page does not exist");
+});
+app.get("/auth/sign-out", middleware_1.signout);
+app.get("/auth/confirm-account/:token/:email", middleware_1.confirmAccount);
+app.get("/internal/seedUsers", seed_1.seedUsers);
+app.post("/auth/forgot-password", middleware_1.forgotPassword);
+app.post("/auth/reset-password", middleware_1.resetPassword);
+if (process.env.NODE_ENV === "production") {
+    app.post("/auth/sign-in", rateLimiter_1.default.prevent, middleware_1.signin);
+}
+else {
+    app.post("/auth/sign-in", middleware_1.signin);
+}
+app.post("/auth/sign-up", middleware_1.createUser);
+app.post("/auth/update-email", middleware_1.updateEmail);
+app.post("/auth/update-password", middleware_1.updatePassword);
+app.post("/auth/update-username", middleware_1.updateUsername);
+app.post("/auth/removeUser", middleware_1.removeUser);
+app.get("/internal/getByUsername/:username", middleware_1.getByUsername);
+app.post("/internal/create-test-user", middleware_1.createTestUser);
+app.post("/internal/clearDb", middleware_1.clearDb);
+if (config_1.GOOGLE_CLIENT_ID && config_1.GOOGLE_CLIENT_SECRET) {
+    app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+    app.get("/auth/google/return", passport.authenticate("google", { failureRedirect: "/" }), (req, res) => {
+        res.writeHead(301, { Location: config_1.AUTH_REDIRECT });
+        res.end();
+    });
+}
+if (config_1.FACEBOOK_CLIENT_ID && config_1.FACEBOOK_CLIENT_SECRET) {
+    app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["user_friends", "manage_pages"] }));
+    app.get("/auth/facebook/return", passport.authenticate("facebook", { failureRedirect: "/" }), (req, res) => {
+        res.writeHead(301, { Location: config_1.AUTH_REDIRECT });
+        res.end();
+    });
+}
+app.get("/auth/:userId", middleware_1.getUser);
+app.listen(config_1.ACCOUNTS_BACKEND_PORT, () => {
+    console.log(`Accounts app version ${config_1.AUTH_VERSION} listening on port ${config_1.ACCOUNTS_BACKEND_PORT}!`);
+});
+//# sourceMappingURL=main.js.map

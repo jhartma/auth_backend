@@ -1,0 +1,11 @@
+FROM jhart/alpine-base:0.0.24
+MAINTAINER Jörg Hartmann "joerghartmann@gmx.org"
+
+# --------------------------
+# DEPLOY APP ---------------
+# --------------------------
+WORKDIR /home/ubuntu
+
+COPY . .
+RUN npm install -g yarn
+RUN yarn install

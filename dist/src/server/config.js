@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ACCOUNTS_BACKEND_PORT = process.env.ACCOUNTS_BACKEND_PORT;
+exports.ACCOUNTS_MONGO_STRING = process.env.ACCOUNTS_MONGO_STRING;
+exports.APP_URL = process.env.APP_URL;
+exports.APP_NAME = process.env.APP_NAME;
+exports.AUTH_REDIRECT = process.env.AUTH_REDIRECT;
+exports.AUTH_VERSION = process.env.AUTH_VERSION;
+exports.FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID;
+exports.FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET;
+exports.FACEBOOK_REDIRECT = process.env.FACEBOOK_REDIRECT;
+exports.GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+exports.GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+exports.GOOGLE_REDIRECT = process.env.GOOGLE_REDIRECT;
+exports.SMTP_PASSWORD = process.env.SMTP_PASSWORD;
+exports.SMTP_PORT = process.env.SMTP_PORT;
+exports.SMTP_SERVER = process.env.SMTP_SERVER;
+exports.SMTP_USER = process.env.SMTP_USER;
+exports.EMAIL_ADDRESS = process.env.EMAIL_ADDRESS;
+//# sourceMappingURL=config.js.map

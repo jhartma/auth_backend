@@ -1,0 +1,13 @@
+version: "3"
+services:
+  test:
+    command: "yarn run test:all"
+    build:
+      context: ../
+      dockerfile: Dockerfile_Test
+    env_file:
+      - ./env/test.env
+    environment:
+      - NODE_ENV=development
+    network_mode: "host"
+    container_name: test

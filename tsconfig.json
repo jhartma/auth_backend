@@ -1,0 +1,42 @@
+{
+    "compilerOptions": {
+      "allowJs": true,
+      "target": "es2017",
+      "experimentalDecorators": true,
+      "module": "commonjs",
+      "baseUrl": ".",
+      "rootDir": "./",
+      "outDir": "./dist",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "downlevelIteration": true,
+      "pretty": true,
+      "lib": [
+        "es5",
+        "es6",
+        "es2015",
+        "es2016",
+        "dom",
+        "esnext"
+      ]
+    },
+    "files": [
+      "./src/server/main.ts",
+      "./src/lib/types/types.d.ts"      
+    ],
+    "include": [
+      "*",
+      "./**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "__tests__",
+        "dist",
+        "coverage",
+        "docker"
+    ]
+  }
