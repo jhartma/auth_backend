@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport = require("passport");
+const ramda_1 = require("ramda");
 const findOrCreateUserOauth_1 = require("../findOrCreateUserOauth");
 const verifyLoginCredentials_1 = require("../helpers/verifyLoginCredentials");
 const config_1 = require("../../server/config");
@@ -53,7 +54,13 @@ function setupPassport(server) {
         }));
     }
     passport.serializeUser((user, cb) => {
-        cb(null, { _id: user._id, username: user.username, email: user.emails && user.emails[0] ? user.emails[0].address : null });
+        cb(null, {
+            _id: user._id,
+            email: user.emails && user.emails[0] ? user.emails[0].address : null,
+            facebookId: ramda_1.pathOr(null, ["services", "facebook", "facebookId"], user),
+            googleId: ramda_1.pathOr(null, ["services", "google", "googleId"], user),
+            username: user.username,
+        });
     });
     passport.deserializeUser((obj, cb) => {
         cb(null, obj);

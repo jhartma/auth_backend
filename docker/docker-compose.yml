@@ -21,6 +21,8 @@ services:
       - ./certs:/etc/nginx/certs
     network_mode: "host"
     container_name: nginx
+    logging:
+      driver: none
 
   auth:
     build:

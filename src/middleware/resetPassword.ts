@@ -22,6 +22,16 @@ const securePassword = require('secure-password')
 export async function resetPassword({ body: { token, password, email } }: express.Request, res: express.Response): Promise<void> {
   let errorMessage
 
+  if (!token) {
+    res.json({ status: 501, message: MESSAGE_FAILURE_INVALID_TOKEN })
+    return null
+  }
+
+  if (!email) {
+    res.json({ status: 509, message: MESSAGE_FAILURE_FIND_USER })
+    return null
+  }
+
   // Check if password and email are strings
   if (!passwordRegex.test(password)) {
     winston.log("info", `Invalid password: ${password}`)
@@ -31,7 +41,7 @@ export async function resetPassword({ body: { token, password, email } }: expres
 
   // Encrypt password
   const generatedPassword = await hashString(password).catch((error) => {
-    winston.log("error", "Error while generating password", { userId: null, function: "hashString", stacktrace: error })
+    winston.log("error", "[ resetPassword ] Error while generating password", { userId: null, function: "hashString", stacktrace: error })
     errorMessage = "Error: Couldn't generate password!"
     res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED })
     return null
@@ -46,10 +56,10 @@ export async function resetPassword({ body: { token, password, email } }: expres
       { emails: { $elemMatch: { address: email } } },
       { "services.password.resetPasswordExpires": { $gte: new Date() } },
     ],
-  }, (err2, user2: any) => {
-    if (err2) {
+  }, (error: any, user2: any): any => {
+    if (error) {
       errorMessage = "Error: Couldn't find user!"
-      res.json({ status: 509, message: MESSAGE_FAILURE_FIND_USER, data: { error: err2 } })
+      res.json({ status: 509, message: MESSAGE_FAILURE_FIND_USER, data: { error } })
       return null
     }
   })
@@ -68,6 +78,7 @@ export async function resetPassword({ body: { token, password, email } }: expres
     // Re-initialize the password
     user.services.password.hash = generatedPassword // eslint-disable-line no-param-reassign
     user.services.password.resetPasswordToken = "" // eslint-disable-line no-param-reassign
+    user.services.password.resetPasswordDate = Date.now() // eslint-disable-line no-param-reassign
     user.services.password.resetPasswordExpires = null // eslint-disable-line no-param-reassign
 
     // Save user object to db

@@ -1,24 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ramda_1 = require("ramda");
 const db_1 = require("../db");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function updateUsername(req, res, next) {
-    const userId = req.session.passport.user._id;
-    const username = req.query.username;
-    const sessionId = req.session.id;
+    const dev = process.env.NODE_ENV !== "production";
+    const userId = dev ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
+    const username = ramda_1.pathOr(null, ["query", "username"], req);
+    const sessionId = ramda_1.pathOr(null, ["session", "id"], req);
+    if (!userId || !username || !sessionId) {
+        logger_1.default.log("error", `[ updateUsername ] An error occurred: ${username}. Err: Wrong session credentials`);
+        res.json({ status: 500, message: messages_1.MESSAGE_FAILURE_UNDEFINED, data: { error: "Wrong session credentials" } });
+        return;
+    }
     const usernameExists = await db_1.Accounts.findOne({ $and: [
             { deleted: false },
             { username },
         ] }, (err) => {
         if (err) {
-            logger_1.default.log("error", `[ usernameExists ] An error occurred when looking for account for username: ${username}. Err: ${err}`);
+            logger_1.default.log("error", `[ updateUsername ] An error occurred when looking for account for username: ${username}. Err: ${err}`);
             res.json({ status: 500, message: messages_1.MESSAGE_FAILURE_UNDEFINED, data: { error: err } });
             return;
         }
     });
     if (usernameExists) {
-        logger_1.default.log("info", `Account for username ${username} already exists`);
+        logger_1.default.log("info", `[ updateUsername ] Account for username ${username} already exists`);
         res.json({ status: 503, message: messages_1.MESSAGE_FAILURE_USER_EXISTS });
         return;
     }

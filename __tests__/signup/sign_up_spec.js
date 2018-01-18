@@ -13,9 +13,9 @@ describe("Sign up test @ready", () => {
   beforeAll(async () => {
     await resetDb()
   })
-  afterAll(async () => {
-    mongoose.disconnect()
-  })
+  // afterAll(async () => {
+  //   mongoose.disconnect()
+  // })
 
   test.only("should send a success message and an email link to verify the account", async () => {
     await new Promise(resolve => setTimeout(resolve, 1 * 1000))
@@ -27,7 +27,7 @@ describe("Sign up test @ready", () => {
     expect(signUp.data.userId).toBeDefined()
 
     // Wait for email and get the confirmation link
-    // await new Promise(resolve => setTimeout(resolve, 1 * 1000))
+    await new Promise(resolve => setTimeout(resolve, 20 * 1000))
     const link = await getEmailLink().catch((err) => console.log("ERR", err))
     expect(link).toEqual(expect.stringContaining("localhost/confirm-account"))
 

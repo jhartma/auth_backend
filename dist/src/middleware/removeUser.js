@@ -5,10 +5,11 @@ const db_1 = require("../db");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function removeUser(req, res, next) {
-    const userId = ramda_1.pathOr(undefined, ["session", "passport", "user", "_id"], req);
+    const dev = process.env.NODE_ENV !== "production";
+    const userId = dev ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
     const sessionId = ramda_1.pathOr(undefined, ["session", "id"], req);
     if (!userId || !sessionId) {
-        logger_1.default.log("info", "Unauthorized attempt to delete user");
+        logger_1.default.log("info", "[ removeUser ] Unauthorized attempt to delete user");
         res.json({ status: 509, message: messages_1.MESSAGE_FAILURE_FIND_USER });
         return;
     }
@@ -17,13 +18,13 @@ async function removeUser(req, res, next) {
             { _id: userId },
         ] }, (err) => {
         if (err) {
-            logger_1.default.log("error", `[ usernameExists ] An error occurred when looking for account for username: ${userId}. Err: ${err}`);
+            logger_1.default.log("error", `[ removeUser ] An error occurred when looking for account for username: ${userId}. Err: ${err}`);
             res.json({ status: 500, message: messages_1.MESSAGE_FAILURE_UNDEFINED, data: { error: err } });
             return;
         }
     });
     if (!user) {
-        logger_1.default.log("error", `[ user not found ] An error occurred when looking for account for username: ${userId}.}`);
+        logger_1.default.log("error", `[ removeUser ] An error occurred when looking for account for username: ${userId}.}`);
         res.json({ status: 515, message: messages_1.MESSAGE_FAILURE_NO_USER });
         return;
     }

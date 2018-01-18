@@ -8,13 +8,22 @@ const messages_1 = require("../server/messages");
 const securePassword = require('secure-password');
 async function resetPassword({ body: { token, password, email } }, res) {
     let errorMessage;
+    console.log({ token, password, email });
+    if (!token) {
+        res.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN });
+        return null;
+    }
+    if (!email) {
+        res.json({ status: 509, message: messages_1.MESSAGE_FAILURE_FIND_USER });
+        return null;
+    }
     if (!regex_1.passwordRegex.test(password)) {
         logger_1.default.log("info", `Invalid password: ${password}`);
         res.json({ status: 506, message: messages_1.MESSAGE_FAILURE_PASSWD_INSECURE });
         return;
     }
     const generatedPassword = await hashString_1.hashString(password).catch((error) => {
-        logger_1.default.log("error", "Error while generating password", { userId: null, function: "hashString", stacktrace: error });
+        logger_1.default.log("error", "[ resetPassword ] Error while generating password", { userId: null, function: "hashString", stacktrace: error });
         errorMessage = "Error: Couldn't generate password!";
         res.json({ status: 500, message: messages_1.MESSAGE_FAILURE_UNDEFINED });
         return null;
@@ -26,10 +35,10 @@ async function resetPassword({ body: { token, password, email } }, res) {
             { emails: { $elemMatch: { address: email } } },
             { "services.password.resetPasswordExpires": { $gte: new Date() } },
         ],
-    }, (err2, user2) => {
-        if (err2) {
+    }, (error, user2) => {
+        if (error) {
             errorMessage = "Error: Couldn't find user!";
-            res.json({ status: 509, message: messages_1.MESSAGE_FAILURE_FIND_USER, data: { error: err2 } });
+            res.json({ status: 509, message: messages_1.MESSAGE_FAILURE_FIND_USER, data: { error } });
             return null;
         }
     });
@@ -43,6 +52,7 @@ async function resetPassword({ body: { token, password, email } }, res) {
         }
         user.services.password.hash = generatedPassword;
         user.services.password.resetPasswordToken = "";
+        user.services.password.resetPasswordDate = Date.now();
         user.services.password.resetPasswordExpires = null;
         user.save((err3) => {
             if (err3) {

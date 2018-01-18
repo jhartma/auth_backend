@@ -1,10 +1,9 @@
 version: "3"
 services:
-  test:
-    command: "yarn run test:all"
+  auth:
     build:
       context: ../
-      dockerfile: Dockerfile_Test
+      dockerfile: Dockerfile_Dev
     env_file:
       - ./env/test.env
     environment:

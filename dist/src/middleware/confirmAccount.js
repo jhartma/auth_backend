@@ -1,12 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ramda_1 = require("ramda");
 const db_1 = require("../db");
 const login_1 = require("../lib/login");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 const securePassword = require('secure-password');
 async function confirmAccount(req, res, next) {
-    const { params: { token, email } } = req;
+    const token = ramda_1.pathOr(null, ["params", "token"], req);
+    const email = ramda_1.pathOr(null, ["params", "email"], req);
+    if (!token) {
+        logger_1.default.log("error", `[ confirmAccount ] Error finding user for token ${token}`);
+        res.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN });
+        return null;
+    }
+    if (!email) {
+        logger_1.default.log("error", `[ confirmAccount ] Error finding user for email ${email}`);
+        res.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN });
+        return null;
+    }
     const user = await db_1.Accounts.findOne({
         $and: [
             { deleted: false },
@@ -16,7 +28,7 @@ async function confirmAccount(req, res, next) {
     }, (err, res2) => {
         if (err) {
             logger_1.default.log("error", `[ confirmAccount ] Error finding user for token ${token}: ${err}`);
-            res2.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN, data: { error: err } });
+            res.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN, data: { error: err } });
             return null;
         }
     });

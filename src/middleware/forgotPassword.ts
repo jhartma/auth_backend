@@ -23,7 +23,7 @@ export async function forgotPassword({ body: { email } }: express.Request, res: 
 
   // Generate a validation token which we will send with the email
   const token = await createValidationToken().catch((error) => {
-    winston.log("error", "Error while creating validation token", { userId: null, function: "createValidationToken", stacktrace: error })
+    winston.log("error", "[ forgotPassword ] Error while creating validation token", { userId: null, function: "createValidationToken", stacktrace: error })
     errorMessage = MESSAGE_FAILURE_VALIDATION_TOKEN
     res.json({ status: 508, message: MESSAGE_FAILURE_VALIDATION_TOKEN, data: { error } })
     return null
@@ -35,9 +35,9 @@ export async function forgotPassword({ body: { email } }: express.Request, res: 
   const user: any = await Accounts.findOne({ $and: [
     { deleted: false },
     { "emails.0.address": email },
-  ] }, (err: any, res2: any) => {
+  ] }, (err: any, res2: any): any => {
     if (err) {
-      winston.log("error", "Couldn't write user to db", { userId: null, function: "writeUserToDb", stacktrace: err })
+      winston.log("error", "[ forgotPassword ] Couldn't write user to db", { userId: null, function: "writeUserToDb", stacktrace: err })
       errorMessage = MESSAGE_FAILURE_FIND_USER
       res.json({ status: 509, message: MESSAGE_FAILURE_FIND_USER, data: { err } })
       return null
@@ -66,7 +66,7 @@ export async function forgotPassword({ body: { email } }: express.Request, res: 
 
   const res3 = await sendMail(user.emails[0].address, subject, message, { SMTP_PASSWORD, SMTP_USER, SMTP_SERVER, SMTP_PORT, EMAIL_ADDRESS })
     .catch((error: any): any => {
-      winston.log("error", "Couldn't send email", { userId: null, function: "sendMail", stacktrace: error })
+      winston.log("error", "[ forgotPassword ] Couldn't send email", { userId: null, function: "sendMail", stacktrace: error })
       errorMessage = MESSAGE_FAILURE_SEND_MAIL
       res.json({ status: 507, message: MESSAGE_FAILURE_SEND_MAIL, data: { error } })
       return null

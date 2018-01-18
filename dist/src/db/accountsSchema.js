@@ -19,6 +19,7 @@ exports.AccountSchema = new schema_1.default({
         },
         password: {
             hash: { type: Buffer },
+            resetPasswordDate: { type: Date, default: null },
             resetPasswordExpires: { type: Date, default: null },
             resetPasswordToken: { type: Buffer, default: null },
             validated: { type: Boolean, default: false },

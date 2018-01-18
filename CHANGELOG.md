@@ -1,3 +1,6 @@
+# 0.0.32
+* serialize facebook and google ids into session
+
 # 0.0.31
 * automatically login after account verification
 * hash signup confirmation token

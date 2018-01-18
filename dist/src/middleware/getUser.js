@@ -6,7 +6,7 @@ const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function getUser(req, res) {
     const sessionUser = ramda_1.pathOr(undefined, ["session", "passport", "user"], req);
-    const userId = sessionUser || req.params.userId;
+    const userId = sessionUser || ramda_1.pathOr(null, ["params", "userId"], req);
     const user = await db_1.Accounts.findOne({
         $and: [
             { _id: userId },

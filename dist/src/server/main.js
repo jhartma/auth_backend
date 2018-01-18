@@ -11,8 +11,8 @@ const seed_1 = require("../db/lib/seed");
 const passport_1 = require("../lib/passport/passport");
 require("./logger");
 const rateLimiter_1 = require("./rateLimiter");
-const app = express();
 const MongoDBStore = require("connect-mongodb-session")(session);
+const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -27,25 +27,55 @@ passport_1.setupPassport(app);
 app.get("/", (req, res) => {
     res.send("This page does not exist");
 });
-app.get("/auth/sign-out", middleware_1.signout);
-app.get("/auth/confirm-account/:token/:email", middleware_1.confirmAccount);
-app.get("/internal/seedUsers", seed_1.seedUsers);
-app.post("/auth/forgot-password", middleware_1.forgotPassword);
-app.post("/auth/reset-password", middleware_1.resetPassword);
+app.get("/auth/confirm-account/:token/:email", (req, res, next) => {
+    middleware_1.confirmAccount(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.get("/auth/sign-out", (req, res, next) => {
+    middleware_1.signout(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.get("/internal/seedUsers", (req, res, next) => {
+    seed_1.seedUsers(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/forgot-password", (req, res, next) => {
+    middleware_1.forgotPassword(req, res).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/reset-password", (req, res, next) => {
+    middleware_1.resetPassword(req, res).catch((err) => { throw new Error(err); });
+});
 if (process.env.NODE_ENV === "production") {
-    app.post("/auth/sign-in", rateLimiter_1.default.prevent, middleware_1.signin);
+    app.post("/auth/sign-in", rateLimiter_1.default.prevent, (req, res, next) => {
+        middleware_1.signin(req, res, next).catch((err) => { throw new Error(err); });
+    });
 }
 else {
-    app.post("/auth/sign-in", middleware_1.signin);
+    app.post("/auth/sign-in", (req, res, next) => {
+        middleware_1.signin(req, res, next).catch((err) => { throw new Error(err); });
+    });
 }
-app.post("/auth/sign-up", middleware_1.createUser);
-app.post("/auth/update-email", middleware_1.updateEmail);
-app.post("/auth/update-password", middleware_1.updatePassword);
-app.post("/auth/update-username", middleware_1.updateUsername);
-app.post("/auth/removeUser", middleware_1.removeUser);
-app.get("/internal/getByUsername/:username", middleware_1.getByUsername);
-app.post("/internal/create-test-user", middleware_1.createTestUser);
-app.post("/internal/clearDb", middleware_1.clearDb);
+app.post("/auth/sign-up", (req, res, next) => {
+    middleware_1.signup(req, res).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/update-email", (req, res, next) => {
+    middleware_1.updateEmail(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/update-password", (req, res, next) => {
+    middleware_1.updatePassword(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/update-username", (req, res, next) => {
+    middleware_1.updateUsername(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.post("/auth/removeUser", (req, res, next) => {
+    middleware_1.removeUser(req, res, next).catch((err) => { throw new Error(err); });
+});
+app.get("/internal/getByUsername/:username", (req, res, next) => {
+    middleware_1.getByUsername(req, res).catch((err) => { throw new Error(err); });
+});
+app.post("/internal/create-test-user", (req, res, next) => {
+    middleware_1.createTestUser(req, res).catch((err) => { throw new Error(err); });
+});
+app.post("/internal/clearDb", (req, res, next) => {
+    middleware_1.clearDb(req, res).catch((err) => { throw new Error(err); });
+});
 if (config_1.GOOGLE_CLIENT_ID && config_1.GOOGLE_CLIENT_SECRET) {
     app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
     app.get("/auth/google/return", passport.authenticate("google", { failureRedirect: "/" }), (req, res) => {
@@ -60,7 +90,9 @@ if (config_1.FACEBOOK_CLIENT_ID && config_1.FACEBOOK_CLIENT_SECRET) {
         res.end();
     });
 }
-app.get("/auth/:userId", middleware_1.getUser);
+app.get("/auth/:userId", (req, res, next) => {
+    middleware_1.getUser(req, res).catch((err) => { throw new Error(err); });
+});
 app.listen(config_1.ACCOUNTS_BACKEND_PORT, () => {
     console.log(`Accounts app version ${config_1.AUTH_VERSION} listening on port ${config_1.ACCOUNTS_BACKEND_PORT}!`);
 });

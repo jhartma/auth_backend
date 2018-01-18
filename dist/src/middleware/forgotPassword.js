@@ -11,7 +11,7 @@ const messages_1 = require("../server/messages");
 async function forgotPassword({ body: { email } }, res) {
     let errorMessage;
     const token = await createValidationToken_1.createValidationToken().catch((error) => {
-        logger_1.default.log("error", "Error while creating validation token", { userId: null, function: "createValidationToken", stacktrace: error });
+        logger_1.default.log("error", "[ forgotPassword ] Error while creating validation token", { userId: null, function: "createValidationToken", stacktrace: error });
         errorMessage = messages_1.MESSAGE_FAILURE_VALIDATION_TOKEN;
         res.json({ status: 508, message: messages_1.MESSAGE_FAILURE_VALIDATION_TOKEN, data: { error } });
         return null;
@@ -22,7 +22,7 @@ async function forgotPassword({ body: { email } }, res) {
             { "emails.0.address": email },
         ] }, (err, res2) => {
         if (err) {
-            logger_1.default.log("error", "Couldn't write user to db", { userId: null, function: "writeUserToDb", stacktrace: err });
+            logger_1.default.log("error", "[ forgotPassword ] Couldn't write user to db", { userId: null, function: "writeUserToDb", stacktrace: err });
             errorMessage = messages_1.MESSAGE_FAILURE_FIND_USER;
             res.json({ status: 509, message: messages_1.MESSAGE_FAILURE_FIND_USER, data: { err } });
             return null;
@@ -47,7 +47,7 @@ async function forgotPassword({ body: { email } }, res) {
     const message = forgotPasswordMessage_1.forgotPasswordMessage(config_1.APP_URL, config_1.APP_NAME, token, email);
     const res3 = await sendMail_1.sendMail(user.emails[0].address, subject, message, { SMTP_PASSWORD: config_1.SMTP_PASSWORD, SMTP_USER: config_1.SMTP_USER, SMTP_SERVER: config_1.SMTP_SERVER, SMTP_PORT: config_1.SMTP_PORT, EMAIL_ADDRESS: config_1.EMAIL_ADDRESS })
         .catch((error) => {
-        logger_1.default.log("error", "Couldn't send email", { userId: null, function: "sendMail", stacktrace: error });
+        logger_1.default.log("error", "[ forgotPassword ] Couldn't send email", { userId: null, function: "sendMail", stacktrace: error });
         errorMessage = messages_1.MESSAGE_FAILURE_SEND_MAIL;
         res.json({ status: 507, message: messages_1.MESSAGE_FAILURE_SEND_MAIL, data: { error } });
         return null;

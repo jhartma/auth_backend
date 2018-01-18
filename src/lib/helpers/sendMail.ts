@@ -1,4 +1,5 @@
 import * as nodemailer from "nodemailer"
+import winston from "../../server/logger"
 
 /**
  * Sends email to given receiver address with given content and subject
@@ -24,10 +25,12 @@ export function sendMail(email: string, subject: string, text: string, env: any)
     }
     smtpTransport.sendMail(mailOptions, (err: any) => {
       if (err) {
+        winston.log("error", `[ sendMail ] An error occured sending an email to ${email}, ${err}`)
         reject(err)
+      } else {
+        winston.log("info", `[ sendMail ] An email was sent to ${email}`)
+        resolve("done")
       }
-      console.log(`[ EMAIL ] Sent email to ${email}`) // eslint-disable-line
-      resolve("done")
     })
   })
 }

@@ -15,7 +15,7 @@ export async function getByUsername(req: any, res: any): Promise<any> {
         { "services.facebook.facebookId": { $exists: true } },
       ] },
     ],
-  }, (err) => {
+  }, (err: any) => {
     if (err) {
       winston.log("error", `[ getByUsername ] An error occurred when fetching the user: ${username}. Err: ${err}`)
       res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })

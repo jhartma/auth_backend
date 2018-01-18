@@ -1,4 +1,5 @@
 import * as express from "express"
+import { pathOr } from "ramda"
 import { Accounts } from "../db"
 import { login } from "../lib/login"
 import winston from "../server/logger"
@@ -18,7 +19,20 @@ const securePassword = require('secure-password')
  */
 
 export async function confirmAccount(req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> {
-  const { params: { token, email } } = req
+  const token = pathOr(null, [ "params", "token" ], req)
+  const email = pathOr(null, [ "params", "email" ], req)
+
+  if (!token) {
+    winston.log("error", `[ confirmAccount ] Error finding user for token ${token}`)
+    res.json({ status: 501, message: MESSAGE_FAILURE_INVALID_TOKEN })
+    return null
+  }
+
+  if (!email) {
+    winston.log("error", `[ confirmAccount ] Error finding user for email ${email}`)
+    res.json({ status: 501, message: MESSAGE_FAILURE_INVALID_TOKEN })
+    return null
+  }
 
   const user: any = await Accounts.findOne({
     $and: [
@@ -29,7 +43,7 @@ export async function confirmAccount(req: express.Request, res: express.Response
   }, (err: any, res2: any): any => {
     if (err) {
       winston.log("error", `[ confirmAccount ] Error finding user for token ${token}: ${err}`)
-      res2.json({ status: 501, message: MESSAGE_FAILURE_INVALID_TOKEN, data: { error: err } })
+      res.json({ status: 501, message: MESSAGE_FAILURE_INVALID_TOKEN, data: { error: err } })
       return null
     }
   })

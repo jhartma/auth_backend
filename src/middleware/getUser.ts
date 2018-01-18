@@ -5,7 +5,7 @@ import { MESSAGE_FAILURE_FIND_USER, MESSAGE_FAILURE_UNDEFINED } from "../server/
 
 export async function getUser(req: any, res: any): Promise<any> {
   const sessionUser = pathOr(undefined, [ "session", "passport", "user" ], req)
-  const userId = sessionUser || req.params.userId
+  const userId = sessionUser || pathOr(null, [ "params", "userId" ], req)
 
   const user: any = await Accounts.findOne({
     $and: [

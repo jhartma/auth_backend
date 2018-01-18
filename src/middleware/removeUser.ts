@@ -4,11 +4,14 @@ import winston from "../server/logger"
 import { MESSAGE_FAILURE_FIND_USER, MESSAGE_FAILURE_NO_USER, MESSAGE_FAILURE_REMOVE_USER, MESSAGE_FAILURE_UNDEFINED, MESSAGE_SUCCESS_REMOVE_USER } from "../server/messages"
 
 export async function removeUser(req: any, res: any, next: any) {
-  const userId = pathOr(undefined, [ "session", "passport", "user", "_id" ], req)
+  const dev = process.env.NODE_ENV !== "production"
+
+  // For security reasons, we identify the user via the sessionId
+  const userId = dev ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
   const sessionId = pathOr(undefined, [ "session", "id" ], req)
 
   if (!userId || !sessionId) {
-    winston.log("info", "Unauthorized attempt to delete user")
+    winston.log("info", "[ removeUser ] Unauthorized attempt to delete user")
     res.json({ status: 509, message: MESSAGE_FAILURE_FIND_USER })
     return
   }
@@ -19,14 +22,14 @@ export async function removeUser(req: any, res: any, next: any) {
     { _id: userId },
   ] }, (err) => {
     if (err) {
-      winston.log("error", `[ usernameExists ] An error occurred when looking for account for username: ${userId}. Err: ${err}`)
+      winston.log("error", `[ removeUser ] An error occurred when looking for account for username: ${userId}. Err: ${err}`)
       res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
       return
     }
   })
 
   if (!user) {
-    winston.log("error", `[ user not found ] An error occurred when looking for account for username: ${userId}.}`)
+    winston.log("error", `[ removeUser ] An error occurred when looking for account for username: ${userId}.}`)
     res.json({ status: 515, message: MESSAGE_FAILURE_NO_USER })
     return
   }

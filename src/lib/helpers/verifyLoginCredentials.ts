@@ -26,7 +26,7 @@ export async function verifyLoginCredentials({ username, password }: any): Promi
 
   // Check if password is a buffer
   if (!Buffer.isBuffer(user.services.password.hash)) {
-    winston.log("error", `user ${user._id} provided a password which is not a buffer`)
+    winston.log("error", `[ verifyLoginCredentials ] user ${user._id} provided a password which is not a buffer`)
     return { user: null }
   }
 
@@ -36,14 +36,14 @@ export async function verifyLoginCredentials({ username, password }: any): Promi
 
     pwd.verify(passwordBuffer, user.services.password.hash, (err: any, result: any) => {
       if (result === securePassword.INVALID_UNRECOGNIZED_HASH) {
-        winston.log("error", `user ${user._id} provided a password not made with secure-password`)
+        winston.log("error", `[ verifyLoginCredentials ] user ${user._id} provided a password not made with secure-password`)
         return resolve({ user: null })
       } else if (result === securePassword.INVALID) {
-        winston.log("info", `User ${user._id} provided a false password.`)
+        winston.log("info", `[ verifyLoginCredentials ] User ${user._id} provided a false password.`)
         return resolve({ user: null })
       }
       if (result === securePassword.VALID) {
-        winston.log("info", `User ${user._id} successfully logged in.`)
+        winston.log("info", `[ verifyLoginCredentials ] User ${user._id} successfully logged in.`)
         return resolve({ user })
       }
     })

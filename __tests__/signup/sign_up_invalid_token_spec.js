@@ -1,12 +1,17 @@
 import fetch from "node-fetch"
 
-test.only("should send an error message when the validation token is invalid @ready", async () => {
+const timeout = 1000
+
+test.only("should send 501 and message 'Sorry, your token is invalid!' when the validation token is invalid @ready", async () => {
   expect.assertions(2)
+  await new Promise(resolve => setTimeout(resolve, timeout))  
 
   // Go to the confirmation link
-  const confirmation = await fetch(encodeURI("https://localhost/confirm-account/1234"), { method: "GET" })
+  const confirmation = await fetch(encodeURI("http://localhost/auth/confirm-account/asdf/asdf"), { method: "GET" })
   .catch((err) => console.log("ERR", err))
-  .then(response => response.json())
+  .then(response => {
+    return response.json()
+  })
 
   // Check response
   expect(confirmation.status).toEqual(501)

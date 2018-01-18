@@ -1,4 +1,5 @@
 import * as passport from "passport"
+import { pathOr } from "ramda"
 import { findOrCreateUserOauth } from "../findOrCreateUserOauth"
 import { verifyLoginCredentials } from "../helpers/verifyLoginCredentials"
 
@@ -66,10 +67,16 @@ export function setupPassport(server: any) {
   }
 
   passport.serializeUser((user: any, cb: any) => {
-    cb(null, { _id: user._id, username: user.username, email: user.emails && user.emails[0] ? user.emails[0].address : null })
+    cb(null, {
+      _id: user._id,
+      email: user.emails && user.emails[0] ? user.emails[0].address : null,
+      facebookId: pathOr(null, [ "services", "facebook", "facebookId" ], user),
+      googleId: pathOr(null, [ "services", "google", "googleId" ], user),
+      username: user.username,
+    })
   })
 
-  passport.deserializeUser((obj, cb) => {
+  passport.deserializeUser((obj: any, cb:any) => {
     cb(null, obj)
   })
 

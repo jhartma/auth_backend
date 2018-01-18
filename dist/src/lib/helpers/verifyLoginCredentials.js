@@ -16,7 +16,7 @@ async function verifyLoginCredentials({ username, password }) {
         return { user: null, message: "User not found" };
     }
     if (!Buffer.isBuffer(user.services.password.hash)) {
-        logger_1.default.log("error", `user ${user._id} provided a password which is not a buffer`);
+        logger_1.default.log("error", `[ verifyLoginCredentials ] user ${user._id} provided a password which is not a buffer`);
         return { user: null };
     }
     return new Promise((resolve) => {
@@ -24,15 +24,15 @@ async function verifyLoginCredentials({ username, password }) {
         const passwordBuffer = Buffer.from(password);
         pwd.verify(passwordBuffer, user.services.password.hash, (err, result) => {
             if (result === securePassword.INVALID_UNRECOGNIZED_HASH) {
-                logger_1.default.log("error", `user ${user._id} provided a password not made with secure-password`);
+                logger_1.default.log("error", `[ verifyLoginCredentials ] user ${user._id} provided a password not made with secure-password`);
                 return resolve({ user: null });
             }
             else if (result === securePassword.INVALID) {
-                logger_1.default.log("info", `User ${user._id} provided a false password.`);
+                logger_1.default.log("info", `[ verifyLoginCredentials ] User ${user._id} provided a false password.`);
                 return resolve({ user: null });
             }
             if (result === securePassword.VALID) {
-                logger_1.default.log("info", `User ${user._id} successfully logged in.`);
+                logger_1.default.log("info", `[ verifyLoginCredentials ] User ${user._id} successfully logged in.`);
                 return resolve({ user });
             }
         });

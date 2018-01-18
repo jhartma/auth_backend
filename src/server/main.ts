@@ -18,7 +18,6 @@ import {
   clearDb,
   confirmAccount,
   createTestUser,
-  createUser,
   forgotPassword,
   getByUsername,
   getUser,
@@ -26,6 +25,7 @@ import {
   resetPassword,
   signin,
   signout,
+  signup,
   updateEmail,
   updatePassword,
   updateUsername,
@@ -36,9 +36,12 @@ import { setupPassport } from "../lib/passport/passport"
 import "./logger"
 import rateLimiter from "./rateLimiter"
 
-const app = express()
 const MongoDBStore = require("connect-mongodb-session")(session)
 
+// Initialize express app
+const app = express()
+
+// Middleware
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -61,31 +64,74 @@ app.get("/", (req: express.Request, res: express.Response) => {
 })
 
 // App Routes
-app.get("/auth/sign-out", signout)
-app.get("/auth/confirm-account/:token/:email", confirmAccount)
-app.get("/internal/seedUsers", seedUsers)
-app.post("/auth/forgot-password", forgotPassword)
-app.post("/auth/reset-password", resetPassword)
+app.get("/auth/confirm-account/:token/:email", (req: any, res: any, next: any) => {
+  confirmAccount(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.get("/auth/sign-out", (req: any, res: any, next: any) => {
+  signout(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.get("/internal/seedUsers", (req: any, res: any, next: any) => {
+  seedUsers(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.post("/auth/forgot-password", (req: any, res: any, next: any) => {
+  forgotPassword(req, res).catch((err) => { throw new Error(err) })
+})
+
+app.post("/auth/reset-password", (req: any, res: any, next: any) => {
+  resetPassword(req, res).catch((err) => { throw new Error(err) })
+})
+
+// Use rate limiter only in production
 if (process.env.NODE_ENV === "production") {
-  app.post("/auth/sign-in", rateLimiter.prevent, signin)
+  app.post("/auth/sign-in", rateLimiter.prevent, (req: any, res: any, next: any) => {
+    signin(req, res, next).catch((err) => { throw new Error(err) })
+  })
 } else {
-  app.post("/auth/sign-in", signin)
+  app.post("/auth/sign-in",  (req: any, res: any, next: any) => {
+    signin(req, res, next).catch((err) => { throw new Error(err) })
+  })
 }
-app.post("/auth/sign-up", createUser)
-app.post("/auth/update-email", updateEmail)
-app.post("/auth/update-password", updatePassword)
-app.post("/auth/update-username", updateUsername)
-app.post("/auth/removeUser", removeUser)
+
+app.post("/auth/sign-up", (req: any, res: any, next: any) => {
+  signup(req, res).catch((err: any) => { throw new Error(err) })
+})
+
+app.post("/auth/update-email", (req: any, res: any, next: any) => {
+  updateEmail(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.post("/auth/update-password", (req: any, res: any, next: any) => {
+  updatePassword(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.post("/auth/update-username", (req: any, res: any, next: any) => {
+  updateUsername(req, res, next).catch((err) => { throw new Error(err) })
+})
+
+app.post("/auth/removeUser", (req: any, res: any, next: any) => {
+  removeUser(req, res, next).catch((err) => { throw new Error(err) })
+})
 
 // // Integration test routes
-app.get("/internal/getByUsername/:username", getByUsername)
-app.post("/internal/create-test-user", createTestUser)
-app.post("/internal/clearDb", clearDb)
+app.get("/internal/getByUsername/:username", (req: any, res: any, next: any) => {
+  getByUsername(req, res).catch((err) => { throw new Error(err) })
+})
+
+app.post("/internal/create-test-user", (req: any, res: any, next: any) => {
+  createTestUser(req, res).catch((err) => { throw new Error(err) })
+})
+
+app.post("/internal/clearDb", (req: any, res: any, next: any) => {
+  clearDb(req, res).catch((err) => { throw new Error(err) })
+})
 
 // External Auth Providers
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
   app.get("/auth/google", passport.authenticate("google", { scope: [ "profile", "email" ] }))
-  app.get("/auth/google/return", passport.authenticate("google", { failureRedirect: "/" }), (req, res) => {
+  app.get("/auth/google/return", passport.authenticate("google", { failureRedirect: "/" }), (req: any, res: any) => {
     res.writeHead(301, { Location: AUTH_REDIRECT })
     res.end()
   })
@@ -93,14 +139,16 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
 
 if (FACEBOOK_CLIENT_ID && FACEBOOK_CLIENT_SECRET) {
   app.get("/auth/facebook", passport.authenticate("facebook", { scope: [ "user_friends", "manage_pages" ] }))
-  app.get("/auth/facebook/return", passport.authenticate("facebook", { failureRedirect: "/" }), (req, res) => {
+  app.get("/auth/facebook/return", passport.authenticate("facebook", { failureRedirect: "/" }), (req: any, res: any) => {
     res.writeHead(301, { Location: AUTH_REDIRECT })
     res.end()
   })
 }
 
 // Get user information by userId
-app.get("/auth/:userId", getUser)
+app.get("/auth/:userId", (req: any, res: any, next: any) => {
+  getUser(req, res).catch((err) => { throw new Error(err) })
+})
 
 // Start Server
 app.listen(ACCOUNTS_BACKEND_PORT, () => {
