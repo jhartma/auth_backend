@@ -100,7 +100,7 @@ describe("User: update username @ready", () => {
 
       // Send request
       const updated = await updateUsername({ username: newUsername, userId })
-      
+
       expect(updated.data.user.username).toEqual(newUsername)
     }, 5000)
   })

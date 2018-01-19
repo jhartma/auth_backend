@@ -5,8 +5,8 @@ const db_1 = require("../db");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function updateUsername(req, res, next) {
-    const dev = process.env.NODE_ENV !== "production";
-    const userId = dev ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
+    const test = process.env.NODE_ENV === "test";
+    const userId = test ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
     const username = ramda_1.pathOr(null, ["query", "username"], req);
     const sessionId = ramda_1.pathOr(null, ["session", "id"], req);
     if (!userId || !username || !sessionId) {
@@ -41,7 +41,7 @@ async function updateUsername(req, res, next) {
     const user = await db_1.Accounts.findOne({ $and: [
             { deleted: false },
             { _id: userId },
-        ] }).lean().exec((res2) => res2);
+        ] });
     await db_1.Sessions.update({ _id: sessionId }, { $set: { "session.passport.user.username": username } }, (err) => {
         if (err) {
             res.json({ status: 512, message: messages_1.MESSAGE_FAILURE_UPDATE_USER, data: { error: err } });

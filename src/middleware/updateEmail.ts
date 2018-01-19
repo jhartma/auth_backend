@@ -12,10 +12,10 @@ import {
 } from "../server/messages"
 
 export async function updateEmail(req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> {
-  const dev = process.env.NODE_ENV !== "production"
+  const test = process.env.NODE_ENV === "test"
 
   // For security reasons, we identify the user via the sessionId
-  const userId = dev ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
+  const userId = test ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
   const email = pathOr(null, [ "query", "email" ], req)
   const sessionId = pathOr(null, [ "session", "id" ], req)
 

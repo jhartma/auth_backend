@@ -17,4 +17,5 @@ exports.SMTP_PORT = process.env.SMTP_PORT;
 exports.SMTP_SERVER = process.env.SMTP_SERVER;
 exports.SMTP_USER = process.env.SMTP_USER;
 exports.EMAIL_ADDRESS = process.env.EMAIL_ADDRESS;
+exports.NODE_ENV = process.env.NODE_ENV;
 //# sourceMappingURL=config.js.map

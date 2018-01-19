@@ -95,5 +95,7 @@ app.get("/auth/:userId", (req, res, next) => {
 });
 app.listen(config_1.ACCOUNTS_BACKEND_PORT, () => {
     console.log(`Accounts app version ${config_1.AUTH_VERSION} listening on port ${config_1.ACCOUNTS_BACKEND_PORT}!`);
+    console.log(`Accounts app db connection: ${config_1.ACCOUNTS_MONGO_STRING}`);
+    console.log(`Accounts app started in ${config_1.NODE_ENV} mode.`);
 });
 //# sourceMappingURL=main.js.map

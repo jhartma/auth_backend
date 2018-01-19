@@ -8,7 +8,6 @@ const messages_1 = require("../server/messages");
 const securePassword = require('secure-password');
 async function resetPassword({ body: { token, password, email } }, res) {
     let errorMessage;
-    console.log({ token, password, email });
     if (!token) {
         res.json({ status: 501, message: messages_1.MESSAGE_FAILURE_INVALID_TOKEN });
         return null;

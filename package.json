@@ -15,7 +15,7 @@
     "dev:stop": "(cd ./docker && docker-compose down)",
     "ops:run:prod": "node_modules/.bin/babel-node src/server/main.js",
     "ops:run": "npx concurrently \"yarn run ts:compile\" \"yarn run ts:run\" ",
-    "test:setup": "(cd ./docker && docker-compose -f docker-compose.test.yml up)",
+    "test:setup": "(cd ./docker && docker-compose -f docker-compose.yml -f docker-compose.test.yml up)",
     "test:all": "node_modules/.bin/jest --runInBand --no-cache -t @ready",
     "test:dev": "node_modules/.bin/jest --watch --runInBand --no-cache -t @dev",
     "test:new": "node_modules/.bin/jest --watch --runInBand --no-cache"

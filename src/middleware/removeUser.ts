@@ -4,10 +4,10 @@ import winston from "../server/logger"
 import { MESSAGE_FAILURE_FIND_USER, MESSAGE_FAILURE_NO_USER, MESSAGE_FAILURE_REMOVE_USER, MESSAGE_FAILURE_UNDEFINED, MESSAGE_SUCCESS_REMOVE_USER } from "../server/messages"
 
 export async function removeUser(req: any, res: any, next: any) {
-  const dev = process.env.NODE_ENV !== "production"
+  const test = process.env.NODE_ENV === "test"
 
   // For security reasons, we identify the user via the sessionId
-  const userId = dev ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
+  const userId = test ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
   const sessionId = pathOr(undefined, [ "session", "id" ], req)
 
   if (!userId || !sessionId) {
@@ -20,7 +20,7 @@ export async function removeUser(req: any, res: any, next: any) {
   const user = await Accounts.findOne({ $and: [
     { deleted: false },
     { _id: userId },
-  ] }, (err) => {
+  ] }, (err: any) => {
     if (err) {
       winston.log("error", `[ removeUser ] An error occurred when looking for account for username: ${userId}. Err: ${err}`)
       res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })

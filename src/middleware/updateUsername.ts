@@ -10,9 +10,9 @@ import {
 } from "../server/messages"
 
 export async function updateUsername(req: any, res: express.Response, next: express.NextFunction): Promise<any> {
-  const dev = process.env.NODE_ENV !== "production"
+  const test = process.env.NODE_ENV === "test"
 
-  const userId = dev ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
+  const userId = test ? pathOr(null, [ "query", "userId" ], req) : pathOr(null, [ "session", "passport", "user", "_id" ], req)
   const username = pathOr(null, [ "query", "username" ], req)
   const sessionId = pathOr(null, [ "session", "id" ], req)
 
@@ -50,10 +50,11 @@ export async function updateUsername(req: any, res: express.Response, next: expr
     $set: { username },
   }, (err: any) => { if (err) { throw new Error(err) } })
   winston.log("info", `[ updateUsername ] user ${userId} updated his/her username to ${username}`)
+  
   const user = await Accounts.findOne({ $and: [
     { deleted: false },
     { _id: userId },
-  ] }).lean().exec((res2: any) => res2)
+  ] })
 
   // Since we store the email information also in the sessions collection, we need to update it, too
   await Sessions.update({ _id: sessionId }, { $set: { "session.passport.user.username": username } }, (err: any) => {

@@ -7,8 +7,8 @@ const regex_1 = require("../lib/regex/regex");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function updatePassword(req, res, next) {
-    const dev = process.env.NODE_ENV !== "production";
-    const userId = dev ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
+    const test = process.env.NODE_ENV === "test";
+    const userId = test ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
     const password = decodeURIComponent(ramda_1.pathOr(null, ["query", "password"], req));
     if (!userId) {
         logger_1.default.log("error", `[ updatePassword ] An error occurred: Wrong session credentials`);

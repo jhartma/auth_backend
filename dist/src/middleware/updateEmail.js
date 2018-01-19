@@ -6,8 +6,8 @@ const db_1 = require("../db");
 const logger_1 = require("../server/logger");
 const messages_1 = require("../server/messages");
 async function updateEmail(req, res, next) {
-    const dev = process.env.NODE_ENV !== "production";
-    const userId = dev ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
+    const test = process.env.NODE_ENV === "test";
+    const userId = test ? ramda_1.pathOr(null, ["query", "userId"], req) : ramda_1.pathOr(null, ["session", "passport", "user", "_id"], req);
     const email = ramda_1.pathOr(null, ["query", "email"], req);
     const sessionId = ramda_1.pathOr(null, ["session", "id"], req);
     if (!userId || !email || !sessionId) {

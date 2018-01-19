@@ -19,3 +19,5 @@ export const SMTP_PORT = process.env.SMTP_PORT
 export const SMTP_SERVER = process.env.SMTP_SERVER
 export const SMTP_USER = process.env.SMTP_USER
 export const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
+
+export const NODE_ENV = process.env.NODE_ENV

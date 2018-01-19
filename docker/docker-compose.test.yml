@@ -7,6 +7,6 @@ services:
     env_file:
       - ./env/test.env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=test
     network_mode: "host"
     container_name: test

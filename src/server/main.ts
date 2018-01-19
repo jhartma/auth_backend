@@ -12,6 +12,7 @@ import {
   FACEBOOK_CLIENT_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  NODE_ENV,
 } from "./config"
 
 import {
@@ -153,4 +154,6 @@ app.get("/auth/:userId", (req: any, res: any, next: any) => {
 // Start Server
 app.listen(ACCOUNTS_BACKEND_PORT, () => {
   console.log(`Accounts app version ${AUTH_VERSION} listening on port ${ACCOUNTS_BACKEND_PORT}!`) // eslint-disable-line
+  console.log(`Accounts app db connection: ${ACCOUNTS_MONGO_STRING}`)
+  console.log(`Accounts app started in ${NODE_ENV} mode.`)
 })
