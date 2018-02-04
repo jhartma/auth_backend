@@ -11,5 +11,10 @@ else
 fi
 
 AUTH_VERSION=$AUTH_VERSION docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache auth
+
+docker tag jhart/auth_backend:$AUTH_VERSION jhart/auth_backend:latest            
+
 docker login
+
 docker push jhart/auth_backend:$AUTH_VERSION
+docker push jhart/auth_backend:latest

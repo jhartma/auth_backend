@@ -2,6 +2,7 @@ import { forgotPassword } from "./_helpers/forgotPassword"
 import { forgotPasswordReset } from "./_helpers/forgotPasswordReset"
 import { resetDb } from "../dist/src/db/lib/resetDb"
 import { seedUser } from "../dist/src/db/lib/seed"
+import { clearMailbox } from "./_helpers/mail"
 
 const username = "testuser"
 const password = "testpassword"
@@ -9,9 +10,16 @@ const email = process.env.TEST_EMAIL
 
 describe("Forgot Password @ready", () => {
   beforeAll(async () => {
+    await clearMailbox()
+    
     await resetDb()
     await seedUser({ username, password, email, city: "Leipzig", country: "Lala Land" })
   })
+
+  afterAll(async () => {
+    await clearMailbox()
+  })
+
   describe("Errors", () => {
     test.only("should respond with 509 if the email is invalid", async () => {
       const res = await forgotPassword({ email: "invalid" })

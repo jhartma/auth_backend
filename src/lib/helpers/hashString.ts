@@ -7,7 +7,7 @@ const securePassword = require("secure-password")
 * @param  {String} password [ user password that is going to be encrypted ]
 * @return {String}          [ the encrypted password ]
 */
-export function hashString(password: string) {
+export function hashString(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const pwd = securePassword()
     const passwordBuffer = Buffer.from(password)

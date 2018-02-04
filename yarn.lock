@@ -98,10 +98,11 @@
   version "8.5.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.4.tgz#74bf463cb7ed54800df11ef4ec3f5d455655a593"
 
-"@types/nodemailer@^4.3.1":
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-4.3.1.tgz#e3985c1b7c7bbbb2a886108b89f1c7ce9a690654"
+"@types/nodemailer@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-4.3.2.tgz#e7c303d7106b6697ede2a28e269140d92710a8d5"
   dependencies:
+    "@types/events" "*"
     "@types/node" "*"
 
 "@types/passport@^0.4.2":
@@ -3211,9 +3212,9 @@ node-pre-gyp@^0.6.39:
     tar "^2.2.1"
     tar-pack "^3.4.0"
 
-nodemailer@^4.0.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.4.1.tgz#ce480eb3db7b949b3366e301b8f0af1c1248025e"
+nodemailer@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.4.2.tgz#f215fb88e8a1052f9f93083909e116d2b79fc8de"
 
 nopt@^4.0.1:
   version "4.0.1"

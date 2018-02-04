@@ -24,3 +24,4 @@ export const MESSAGE_SUCCESS_SIGNIN: string = process.env.MESSAGE_SUCCESS_SIGNIN
 export const MESSAGE_SUCCESS_SIGNOUT: string = process.env.MESSAGE_SUCCESS_SIGNOUT || "You signed out"
 export const MESSAGE_SUCCESS_UPDATE_USER: string = process.env.MESSAGE_SUCCESS_UPDATE_USER || "Successfully updated your account"
 export const MESSAGE_SUCCESS_REMOVE_USER: string = process.env.MESSAGE_SUCCESS_REMOVE_USER || "Successfully removed user"
+export const MESSAGE_FAILURE_MAX_ACCOUNTS: string = process.env.MESSAGE_FAILURE_MAX_ACCOUNTS || "Signing up has been stopped for the moment"

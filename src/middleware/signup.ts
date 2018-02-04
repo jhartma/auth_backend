@@ -8,7 +8,7 @@ import { hashString } from "../lib/helpers/hashString"
 import { sendMail } from "../lib/helpers/sendMail"
 import { passwordRegex } from "../lib/regex/regex"
 import { User } from "../lib/types/user"
-import { APP_NAME, APP_URL, EMAIL_ADDRESS, SMTP_PASSWORD, SMTP_PORT, SMTP_SERVER, SMTP_USER } from "../server/config"
+import { ACCOUNTS_LIMIT, APP_NAME, APP_URL, EMAIL_ADDRESS, SMTP_PASSWORD, SMTP_PORT, SMTP_SERVER, SMTP_USER } from "../server/config"
 import winston from "../server/logger"
 import {
   MESSAGE_ACCOUNT_CREATED,
@@ -21,17 +21,23 @@ import {
   MESSAGE_FAILURE_UNDEFINED,
   MESSAGE_FAILURE_USER_EXISTS,
   MESSAGE_FAILURE_USERNAME_TOO_SHORT,
+  MESSAGE_FAILURE_MAX_ACCOUNTS,
 } from "../server/messages"
 
-export async function signup({ body: { username, email, password } }: express.Request, res: express.Response): Promise<void> {
+export async function signup({ body: { username, email, password } }: express.Request, res: express.Response): Promise<any> {
   if (!username || username.length < 6) {
-    res.json({ status: 505, message: MESSAGE_FAILURE_USERNAME_TOO_SHORT })
-    return
+    return res.status(500).json({ status: 514, message: MESSAGE_FAILURE_USERNAME_TOO_SHORT })
   }
 
   if (!password) {
-    res.json({ status: 505, message: MESSAGE_FAILURE_PASSWD_TOO_SHORT })
-    return
+    res.status(500).json({ status: 505, message: MESSAGE_FAILURE_PASSWD_TOO_SHORT })
+  }
+
+  // Stop account creation if it exceeds the limit
+  const count = (await Accounts.find()).length
+  if (count >= parseInt(ACCOUNTS_LIMIT,0) && parseInt(ACCOUNTS_LIMIT,0) > 0) {
+    winston.log("error", `[ createUser ] The maximum accounts limit was exceeded`)    
+    return res.status(500).json({ status: 518, message: MESSAGE_FAILURE_MAX_ACCOUNTS })    
   }
 
   const uname = username.toLowerCase()
@@ -45,68 +51,62 @@ export async function signup({ body: { username, email, password } }: express.Re
   ]}, (err: any) => {
     if (err) {
       winston.log("error", `[ createUser ] An error occurred when looking for account for username: ${uname}. Err: ${err}`)
-      res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
-      return
+      return res.status(500).json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
     }
   })
 
-  const checkEmail = await Accounts.findOne({ emails: { $elemMatch: { address: mail } } }, (err) => {
+  const checkEmail = await Accounts.findOne({ emails: { $elemMatch: { address: mail } } }, (err: any) => {
     if (err) {
       winston.log("error", `[ createUser ] An error occurred when looking for account for email: ${mail}. Err: ${err}`)
-      res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
-      return
+      return res.status(500).json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
     }
   })
 
   if (checkUsername) {
     winston.log("info", `[ createUser ] Account for username ${uname} already exists`)
-    res.json({ status: 503, message: MESSAGE_FAILURE_USER_EXISTS })
-    return
+    return res.status(500).json({ status: 503, message: MESSAGE_FAILURE_USER_EXISTS })
   }
 
   if (checkEmail) {
     winston.log("info", `[ createUser ] Account for email ${mail} already exists`)
-    res.json({ status: 504, message: MESSAGE_FAILURE_EMAIL_EXISTS })
-    return
+    return res.status(500).json({ status: 504, message: MESSAGE_FAILURE_EMAIL_EXISTS })
   }
 
   if (pw.length < 6) {
     winston.log("info", `[ createUser ] Password is too short: ${pw}`)
-    res.json({ status: 505, message: MESSAGE_FAILURE_PASSWD_TOO_SHORT })
-    return
+    return res.status(500).json({ status: 505, message: MESSAGE_FAILURE_PASSWD_TOO_SHORT })
   }
 
   // Check if password and email are strings
   if (!passwordRegex.test(pw)) {
     winston.log("info", `[ createUser ] Invalid password: ${pw}`)
-    res.json({ status: 506, message: MESSAGE_FAILURE_PASSWD_INSECURE })
-    return
+    return res.status(500).json({ status: 506, message: MESSAGE_FAILURE_PASSWD_INSECURE })
   }
 
   if (!isEmail.validate(mail, { checkDNS: false })) {
     winston.log("info", `[ createUser ] Invalid email: ${mail}`)
-    res.json({ status: 510, message: MESSAGE_FAILURE_EMAIL_INVALID })
-    return
+    return res.status(500).json({ status: 510, message: MESSAGE_FAILURE_EMAIL_INVALID })
   }
 
   // Generate Password
   const encryptedPassword = await hashString(pw).catch((err) => {
     winston.log("error", `[ createUser ] Could't generate password: ${err}`)
-    res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
-    return null
+    return res.status(500).json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
   })
 
   // Create Validation Token
-  const validationToken = await createValidationToken().catch((err) => {
+  const validationToken: string = await createValidationToken().catch((err) => {
     winston.log("error", `[ createUser ] Could't generate validation token: ${err}`)
-    res.json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
-    return null
+    res.status(500).json({ status: 500, message: MESSAGE_FAILURE_UNDEFINED, data: { error: err } })
+    return ""
   })
-  const hashedToken = await hashString(validationToken)
+
+  const hashedToken: string = await hashString(validationToken)
 
   // Write new user to database
   const user: User = {
     _id: uuid.v4(),
+    deleted: false,
     emails: [{ address: mail, verified: false }],
     services: {
       password: {
@@ -122,8 +122,8 @@ export async function signup({ body: { username, email, password } }: express.Re
   const createdUser = await Accounts.create(user, (err: any): Promise<any> => {
     if (err) {
       winston.log("error", `[ createUser ] Could't create user: ${err}`)
-      res.json({ status: 502, message: MESSAGE_FAILURE_SAVE_USER, data: { error: err } })
-      return null
+      res.status(500).json({ status: 502, message: MESSAGE_FAILURE_SAVE_USER, data: { error: err } })
+      return
     }
   })
 
@@ -134,11 +134,10 @@ export async function signup({ body: { username, email, password } }: express.Re
     const sent = await sendMail(user.emails[0].address, subject, message, { SMTP_PASSWORD, SMTP_USER, SMTP_SERVER, SMTP_PORT, EMAIL_ADDRESS })
       .catch((err: any) => {
         winston.log("error", `[ createUser ] Could't send email: ${err}`)
-        res.json({ status: 507, message: MESSAGE_FAILURE_SEND_MAIL, data: { error: err } })
+        res.status(500).json({ status: 507, message: MESSAGE_FAILURE_SEND_MAIL, data: { error: err } })
       })
     if (sent === "done") {
-      res.json({ status: 200, message: MESSAGE_ACCOUNT_CREATED, data: { username: uname, userId: user._id, validationToken } })
-      return
+      return res.status(200).json({ status: 200, message: MESSAGE_ACCOUNT_CREATED, data: { username: uname, userId: user._id, validationToken } })
     }
   }
 }

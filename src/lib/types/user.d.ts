@@ -1,5 +1,5 @@
-import { Binary } from "bson";
-import { Hash } from "crypto";
+import { Binary } from "bson"
+import { Hash } from "crypto"
 
 export interface Email {
   address: string
@@ -19,6 +19,7 @@ export interface Services {
 
 export interface User {
   _id: string
+  deleted: boolean
   emails: Email[]
   services: Services
   username: string

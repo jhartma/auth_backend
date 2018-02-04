@@ -22,6 +22,7 @@ async function createTestUser({ body: { username, email, password } }, res) {
     });
     const user = {
         _id: username === "jhartma" ? "1" : uuid.v4(),
+        deleted: false,
         emails: [{ address: mail, verified: false }],
         services: {
             password: {

@@ -33,6 +33,7 @@ ACCOUNTS_BACKEND_PORT=4200    # the port for th express server
 APP_NAME=Auth_BACKEND         # app name displayed in email messages
 APP_URL=localhost             # the url of your site
 AUTH_REDIRECT=/private        # redirect route after login
+ACCOUNTS_LIMIT                # Max number of accounts that can be created. default: 0 = infinite number
 
 # External OAuth provider credentials
 GOOGLE_CLIENT_ID==**********
@@ -155,6 +156,7 @@ The status field in the response object sends a numeric value. Here is what they
 * 515 - User not found
 * 516 - Failure removing user
 * 517 - Success removing user
+* 518 - Maximum account number reached
 
 ### Custom Response Messages
 The response messages can be customised via environment variables.

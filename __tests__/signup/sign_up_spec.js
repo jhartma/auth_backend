@@ -2,7 +2,7 @@ import * as mongoose from "mongoose"
 import fetch from "node-fetch"
 import { resetDb } from "../../dist/src/db/lib/resetDb"
 import { seedUser } from "../../dist/src/db/lib/seed"
-import { getEmailLink } from "../_helpers/mail"
+import { getEmailLink, clearMailbox } from "../_helpers/mail"
 import { signup } from "../_helpers/signup"
 
 const username = "jimmie"
@@ -12,13 +12,11 @@ const password = "asdSSf43@asdf"
 describe("Sign up test @ready", () => {
   beforeAll(async () => {
     await resetDb()
+    await clearMailbox()
   })
-  // afterAll(async () => {
-  //   mongoose.disconnect()
-  // })
 
   test.only("should send a success message and an email link to verify the account", async () => {
-    await new Promise(resolve => setTimeout(resolve, 1 * 1000))
+    await new Promise(resolve => setTimeout(resolve, 4 * 1000))
 
     const signUp = await signup({ username, email, password }).then((response) => response)
 

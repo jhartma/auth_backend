@@ -26,4 +26,5 @@ exports.MESSAGE_SUCCESS_SIGNIN = process.env.MESSAGE_SUCCESS_SIGNIN || "You sign
 exports.MESSAGE_SUCCESS_SIGNOUT = process.env.MESSAGE_SUCCESS_SIGNOUT || "You signed out";
 exports.MESSAGE_SUCCESS_UPDATE_USER = process.env.MESSAGE_SUCCESS_UPDATE_USER || "Successfully updated your account";
 exports.MESSAGE_SUCCESS_REMOVE_USER = process.env.MESSAGE_SUCCESS_REMOVE_USER || "Successfully removed user";
+exports.MESSAGE_FAILURE_MAX_ACCOUNTS = process.env.MESSAGE_FAILURE_MAX_ACCOUNTS || "Signing up has been stopped for the moment";
 //# sourceMappingURL=messages.js.map
