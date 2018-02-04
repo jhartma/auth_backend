@@ -110,7 +110,7 @@ describe("Sign up test validations @ready", () => {
 
     return signup({ username: "Christoph", email: "test@draaft.co", password: "aSsdSSf43@asdf" }).then((response) => {
       expect(response.status).toEqual(518)
-      expect(response.message).toEqual("Signing up has been stopped for the moment")
+      expect(response.message).toEqual("We're still in beta and currently do not allow new users.")
     })
   })
 })
